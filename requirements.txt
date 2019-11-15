@@ -13,3 +13,4 @@ scikit-learn
 scipy
 rasterio
 datetime
+xlrd >= 1.0.0
