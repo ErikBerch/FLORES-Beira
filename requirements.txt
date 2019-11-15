@@ -1,0 +1,16 @@
+numpy
+matplotlib
+seaborn
+pandas
+ema_workbench=2.0.5
+ipykernel
+sphinx>=1.4
+scipy
+ipython
+ipyparallel
+jupyter
+scikit-learn
+scipy
+rasterio
+datetime
+timeit
