@@ -95,10 +95,7 @@ class FloodSimModel:
         input_scenario_development = 'none'
         chosen_measures = input_data.ChosenStrategy
 
-        # added so we can add scenario information into the replicator
-        if return_period_rain == 'INFO':
-            scenario_info = str(input_scenario_climate) + ',' + str(input_scenario_development)
-            return [scenario_info] * 3
+
 
         # start of model, loads simulation-specific data
         hydraulic = get_hydraulic_boundary_conditions(self.HydraulicConditionsMaster, return_period_storm,
@@ -130,10 +127,16 @@ class FloodSimModel:
 
         return risk_reduction, construction_cost, affected_pop_reduction
 
-    def screening_simulation_model(self, return_period_storm_surge, return_period_rainfall, climate_scenario,  **kwargs):
+    def screening_simulation_model(self, return_period_storm_surge, return_period_rainfall, climate_scenario, urban_development_scenario, **kwargs):
 
+        # added so we can add scenario information into the replicator
+        if return_period_rainfall == 'INFO':
+            scenario_info = str(climate_scenario) + ',' + str(urban_development_scenario)
+            return [scenario_info] * 3
+        #print('surge: {}, rain: {}'.format(return_period_storm_surge,return_period_rainfall))
         strategy = []
         substring_height = 'height'
+        substring_scenario = 'scenario'
         structural_heights = {}
         for lever, value in kwargs.items():
             if lever in self.AllMeasures:  # lever is a measure
@@ -142,6 +145,8 @@ class FloodSimModel:
             elif substring_height in lever:  # lever is a measure height with boundaries
                 measure_code = lever.split('-')[1]
                 structural_heights[measure_code] = float(value)
+            elif substring_scenario in lever:
+                pass
             else:
                 print('wrong measure chosen: {}'.format(lever))
 
