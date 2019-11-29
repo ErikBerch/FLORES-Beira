@@ -36,7 +36,7 @@ def run_hydraulic_calculation(region_layout, hydraulic, strategy):
     :param strategy:
     :return:
     """
-    max_t = hydraulic.StormDuration + 1
+    max_t = hydraulic.StormDuration
     time = np.arange(0, max_t+0.1, 0.1) * 3600
     timestep = int(time[1] - time[0])
     surgelist = pad_or_truncate(list(hydraulic.SurgeSeries), len(time))
@@ -80,6 +80,7 @@ def run_hydraulic_calculation(region_layout, hydraulic, strategy):
             absolute_surrounding_water_levels = {}
             for scenario in strategy.ListScenarios:
                 drain_to_other_basin = {}
+                tmp_start_basin_volume = old_basin_volumes[basin][scenario]
                 tmp_basin_volume_change[scenario] = flow_interbasin[basin][scenario][i]   # first: flow from other basins
                 absolute_surrounding_water_levels[scenario] = region_layout.Basins[basin].get_absolute_surrounding_water_levels(region_layout.Basins, scenario, i-1)
                 tmp_inflow_rain = region_layout.Basins[basin].run_rain_module(rain_series[i], timestep)  # second: inflow by rain
@@ -119,7 +120,7 @@ def run_hydraulic_calculation(region_layout, hydraulic, strategy):
                 tmp_volume_into_retention = min(tmp_basin_volume_before_drain, region_layout.Basins[basin].RetentionCapacity - retention[basin][scenario][i])
                 retention[basin][scenario][i+1] = retention[basin][scenario][i] + tmp_volume_into_retention  # volume left in retention in the basin
                 tmp_basin_volume_before_drain -= tmp_volume_into_retention
-                [drain_to_basin, tmp_drain_drop_off] = region_layout.Basins[basin].get_drain_drop_off(surgelist[i-1], region_layout.Basins, scenario, i-1)
+                [drain_to_basin, tmp_drain_drop_off] = region_layout.Basins[basin].get_drain_drop_off(surgelist[i], region_layout.Basins, scenario, i-1)
                 [outflow_drainage[basin][scenario][i], tmp_basin_volume_after_drain, drain_to_other_basin[drain_to_basin], retention[basin][scenario][i+1]] = calculation_drainage(region_layout.Basins[basin], drain_to_basin, tmp_basin_volume_before_drain, timestep, tmp_drain_drop_off, retention[basin][scenario][i+1])   # Fifth: outflow by drainage
                 volume_retention[scenario] += (retention[basin][scenario][i+1] - retention[basin][scenario][i])    # total volume for the scenario (basin sum)
                 outflow_drain[scenario] += outflow_drainage[basin][scenario][i]
@@ -134,18 +135,18 @@ def run_hydraulic_calculation(region_layout, hydraulic, strategy):
                 total_volume_in_system[scenario][i] += old_basin_volumes[basin][scenario]
             for scenario in ['1.1']:
                 tmp_total_in = tmp_inflow_rain + tmp_inflow_storm + flow_interbasin[basin][scenario][i]
-                tmp_total_out = tmp_outflow_infiltration + outflow_drainage[basin][scenario][i] + tmp_volume_into_retention + sum(flow_to_other_basins.values())  # + old_basin_volumes[basin][scenario]
+                tmp_total_out = tmp_outflow_infiltration + outflow_drainage[basin][scenario][i] + tmp_volume_into_retention + sum(flow_to_other_basins.values()) + sum(drain_to_other_basin.values())  # + old_basin_volumes[basin][scenario]
                 # print("Timestep = {}. Basin = {}. scenario = {}, inundation = {}, old_height = {}, volume_change = {}, flow_into_basin = {}, BorderHeights = {}".format(i, basin, scenario, round(region_layout.Basins[basin].ScenarioWaterLevels[scenario][i], 4), round(region_layout.Basins[basin].ScenarioWaterLevels[scenario][i] + region_layout.Basins[basin].Contours[0].MinHeight,4), round(tmp_basin_volume_after_drain, 4), round(flow_interbasin[basin][scenario][i],4), region_layout.Basins[basin].BorderHeights))
-                # print('In: rain: {}, storm, {}, flow in: {}. Out: infiltration: {}, drain: {}, retention: {},
-            # flow_away: {} volume_left: {}. total in: {}, total out {}, difference: {}'.format(tmp_inflow_rain,
-            # tmp_inflow_storm, flow_interbasin[basin][scenario][i], tmp_outflow_infiltration,
-            # outflow_drainage[basin][scenario][i],tmp_volume_into_retention, sum(flow_to_other_basins.values()) +
-            # drain_to_other_basin[drain_to_basin], old_basin_volumes[basin][scenario], tmp_total_in, tmp_total_out,
-            # tmp_total_in - tmp_total_out))
+                # print('In: rain: {}, storm, {}, flow in: {}. Out: infiltration: {}, drain: {}, retention: {}, flow_away: {} volume_left: {}, volume_increase: {}. total in: {}, total out {}, difference: {}, unaccounted_volume: {}'.format(tmp_inflow_rain,
+                #          tmp_inflow_storm, flow_interbasin[basin][scenario][i], tmp_outflow_infiltration,
+                #          outflow_drainage[basin][scenario][i],tmp_volume_into_retention, sum(flow_to_other_basins.values()) +
+                #          drain_to_other_basin[drain_to_basin], old_basin_volumes[basin][scenario], old_basin_volumes[basin][scenario] - tmp_start_basin_volume, tmp_total_in, tmp_total_out,
+                #          tmp_total_in - tmp_total_out, round(tmp_total_in - tmp_total_out - (old_basin_volumes[basin][scenario] - tmp_start_basin_volume),2)))
 
     for basin in region_layout.Basins:
         for scenario in strategy.ListScenarios:
             region_layout.Basins[basin].get_maximum_water_level(scenario)
+
 
     return [inflow_rain, inflow_storm, outflow_drain, outflow_infiltration, volume_retention]
 

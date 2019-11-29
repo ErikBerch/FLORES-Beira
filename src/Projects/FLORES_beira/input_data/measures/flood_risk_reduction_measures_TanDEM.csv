@@ -1,0 +1,12 @@
+Name;Code;Type;Layer;Location;Potential_heights_min_max;STR_Land/Water;STR_width;STR_width_unit;STR_height_unit;STR_slope;STR_irribaren;STR_depth;STR_depth_unit;STR_length;STR_length_unit;STR_chezy;NBS_effect;NBS_factor;EM_effect;EM_factor;Constant costs;Constant cost unit;Variable costs;Variable costs unit;;New_drainage_capacity;Retention_capacity
+Heighten_dunes_east;CD_1;Structural;Coast;East;"9.0;12.0";Land;9500;m;m+MSL;0.25;1.25;;;;;;;;;;3;Million/km;1.5;Million/km/m;;;
+Sand_supplements_east;CD_2;Structural;Coast;East;"9.0;12.0";Land;9500;m;m+MSL;0.15;1;;;;;;;;;;2;Million/km;0.5;Million/km/m;;;
+Heighten_dunes_west;CD_3;Structural;Coast;West;"8.0;12.0";Land;4800;m;m+MSL;0.25;1;;;;;;;;;;4;Million/km;1.5;Million/km/m;;;
+Floodwall_west;CD_4;Structural;Coast;West;"8.0;12.0";Land;4800;m;m+MSL;0.25;1;;;;;;;;;;5;Million/km;1;Million/km/m;;;
+Heighten_inland_road;SM_1;Structural;Inland;Inland road;"7.5;9.0";Land;6500;m;m+MSL;0.25;1;;;;;;;;;;3;Million/km;0.5;Million/km/m;;;
+Second_phase_drainage;DR_1;Drainage;;"8;14;9;7;6;4";;;;;;;;;;;;;;;;;12;Million;;;;"35;30;20;20;20;20";
+Microdrainage;DR_2;Drainage;;"4;5;6;7;9;10;11;13;14";;;;;;;;;;;;;;;;;8;Million;;;;10;
+East_retention;RT_1;Retention;;"14;6";;;;;;;;;;;;;;;;;5;Million;;;;;"500000;1000000"
+Chota_retention;RT_2;Retention;;8;;;;;;;;;;;;;;;;;2;Million;;;;;1000000
+Improve_evacuation;EM_1;Emergency;;"3;5;7;8;9;11;12;13;14";;;;;;;;;;;;;;;;0.35;1.5;Million;;;;;
+Early_warning_system;EM_2;Emergency;;"1;2;3;5;6;8;9;11;12;13;14";;;;;;;;;;;;;;;;0.5;0.4;Million;;;;;

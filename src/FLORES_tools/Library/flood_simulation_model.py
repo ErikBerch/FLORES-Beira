@@ -57,7 +57,7 @@ class FloodSimModel:
         self.LayersMaster = load_layers(self.SourcesDict['layers'], self.BasinsMaster)
         self.BasinBorders = load_basin_borders(self.BasinsMaster, self.SourcesDict['basin_borders'])
         self.DrainageMaster = load_drainage_capacities(self.BasinsMaster, self.SourcesDict['basin_drainage'],
-                                                       small_channel=6, mid_channel=10, large_channel=35, low_drain=0,
+                                                       small_channel=6, mid_channel=10, large_channel=45, low_drain=0,
                                                        mid_drain=2, high_drain=4)
         self.AllMeasures = load_measures(self.SourcesDict['measures'])
         self.DamageCurves = load_damage_curves(self.SourcesDict['damage_curves'], 'AFRICA',
@@ -133,15 +133,19 @@ class FloodSimModel:
         if return_period_rainfall == 'INFO':
             scenario_info = str(climate_scenario) + ',' + str(urban_development_scenario)
             return [scenario_info] * 3
-        #print('surge: {}, rain: {}'.format(return_period_storm_surge,return_period_rainfall))
+        print('surge: {}, rain: {}'.format(return_period_storm_surge,return_period_rainfall))
         strategy = []
         substring_height = 'height'
+        substring_structure = 'structure'
         substring_scenario = 'scenario'
         structural_heights = {}
         for lever, value in kwargs.items():
             if lever in self.AllMeasures:  # lever is a measure
                 if value is True:
                     strategy.append(lever)
+            elif substring_structure in lever:  # for structures, workbench chooses the structure, value is the choice
+                if value is not None:
+                    strategy.append(value)
             elif substring_height in lever:  # lever is a measure height with boundaries
                 measure_code = lever.split('-')[1]
                 structural_heights[measure_code] = float(value)
@@ -179,9 +183,9 @@ class SimulationInput:
 
 
 def process_risk(data_risk):
-    D0_source = {'low,low': 9800000,
+    D0_source = {'low,low': 108000000, # lidar: 15500000, TanDEM: 84000000 (trapz: tandem: 108000000)
                  'low,high': 24092900,  # not calibrated. don't use
-                 'high,low': 14980000,
+                 'high,low': 165000000, # lidar: 17500000 TanDEM: 135000000 (trapz: tandem: 165000000)
                  'high,high': 31478200  # not calibrated. don't use
                  }
 
@@ -193,12 +197,12 @@ def process_risk(data_risk):
     runs_per_hazard = len(Prob_rain) - 1
     data_risk_array = np.reshape(data_risk, (runs_per_hazard, runs_per_hazard))
 
-    risk_conditional_storm = []
+    tmp_risk_conditional_storm = []
     for count_storm, p_storm in enumerate(Prob_storm[0:5]):
         tmp_conditional_damages = data_risk_array[count_storm]
-        conditional_damages = np.append(tmp_conditional_damages, tmp_conditional_damages[-1])
-        risk_conditional_storm.append(trapz(conditional_damages, Prob_rain))
-    risk_conditional_storm.append(risk_conditional_storm[-1])
+        conditional_damages = np.append(tmp_conditional_damages[0], tmp_conditional_damages)
+        tmp_risk_conditional_storm.append(trapz(conditional_damages, Prob_rain))
+    risk_conditional_storm = np.append(tmp_risk_conditional_storm[0], tmp_risk_conditional_storm)
     risk = trapz(risk_conditional_storm, Prob_storm)
     risk_reduction = (D0 - risk) / D0
 
@@ -206,9 +210,9 @@ def process_risk(data_risk):
 
 
 def process_affected_people(data_people):
-    P0_source = {'low,low': 32800,
+    P0_source = {'low,low': 105000, #lidar: 35000 , TanDEM: 105000 (Trapz: tandem:105000)
                  'low,high': 80100,  # not calibrated. don't use
-                 'high,low': 48700,
+                 'high,low': 135000, # lidar: 68000, TanDEM: 130000 (trapz: tandem: 135000)
                  'high,high': 112100  # not calibrated. don't use
                  }
 
@@ -221,13 +225,13 @@ def process_affected_people(data_people):
     runs_per_hazard = len(Prob_rain) - 1
     data_people_array = np.reshape(data_people, (runs_per_hazard, runs_per_hazard))
 
-    people_conditional_storm = []
+    tmp_people_conditional_storm = []
     for count_storm, p_storm in enumerate(Prob_storm[0:5]):
         tmp_conditional_people = data_people_array[count_storm]
-        conditional_people = np.append(tmp_conditional_people, tmp_conditional_people[-1])
-        people_conditional_storm.append(trapz(conditional_people, Prob_rain))
+        conditional_people = np.append(tmp_conditional_people[0], tmp_conditional_people)
+        tmp_people_conditional_storm.append(trapz(conditional_people, Prob_rain))
 
-    people_conditional_storm.append(people_conditional_storm[-1])
+    people_conditional_storm = np.append(tmp_people_conditional_storm[0], tmp_people_conditional_storm)
     affected_population = trapz(people_conditional_storm, Prob_storm)
     affected_population_reduction = (P0 - affected_population) / P0
 
@@ -245,11 +249,14 @@ def flores_simulation_for_screening( return_period_storm_surge, return_period_ra
 
     strategy = []
     substring_height = 'height'
+    substring_structure = 'structure'
     structural_heights = {}
     for lever, value in kwargs.items():
         if lever in simulation_model.AllMeasures:  #lever is a measure
             if value is True:
                 strategy.append(lever)
+        elif substring_structure in lever: # for structures, workbench chooses the structure, value is the choice
+            strategy.append(value)
         elif substring_height in lever:      #lever is a measure height with boundaries
             measure_code = lever.split('-')[1]
             structural_heights[measure_code] = float(value)

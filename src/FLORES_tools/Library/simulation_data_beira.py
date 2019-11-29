@@ -109,20 +109,20 @@ def load_basins(file, file_development):
         basins_master[development_scenario] = {}
         for row in range(0, len(basins_source)):
             tmp_basin = basins_source.loc[row]
-            landuse_dictionary = {}
+            #landuse_dictionary = {}
             landuse_value_dictionary = {}
             for landusetype in ['DEV_1', 'DEV_2', 'DEV_3', 'DEV_5', 'DEV_7']:
-                landuse_dictionary[landusetype] = tmp_basin[landusetype + '_Area']                  # {type,value of land use}
+                #landuse_dictionary[landusetype] = tmp_basin[landusetype + '_Area']                  # {type,value of land use}
                 landuse_value_dictionary[landusetype] = tmp_basin[landusetype + '_Value'] * development_scenario_master[development_scenario][landusetype]
             if int(tmp_basin['Basin_ID']) == len(basins_master[development_scenario]) - 1 and len(basins_master[development_scenario]) != 0:
                 basins_master[development_scenario][int(tmp_basin['Basin_ID'])].SurfaceArea += tmp_basin['area (m2)']
                 basins_master[development_scenario][int(tmp_basin['Basin_ID'])].Contours.append(Contour(int(tmp_basin['Contour_ID']),tmp_basin['Height_min'],
-                                                                                    tmp_basin['area (m2)'], landuse_dictionary, landuse_value_dictionary, tmp_basin['Population'] *
+                                                                                    tmp_basin['area (m2)'], landuse_value_dictionary, tmp_basin['Population'] *
                                                                                                         development_scenario_master[development_scenario][landusetype]))
             else:
                 basins_master[development_scenario][int(tmp_basin['Basin_ID'])] = Basin(str(int(tmp_basin['Basin_ID'])), surfacearea=tmp_basin['area (m2)'],
                                                                   contours=[Contour(int(tmp_basin['Contour_ID']),tmp_basin['Height_min'],
-                                                                                    tmp_basin['area (m2)'], landuse_dictionary, landuse_value_dictionary, tmp_basin['Population']*
+                                                                                    tmp_basin['area (m2)'], landuse_value_dictionary, tmp_basin['Population']*
                                                                            development_scenario_master[development_scenario][landusetype])])
         for basin in basins_master[development_scenario]:
             basins_master[development_scenario][basin].get_infiltration_rate()
