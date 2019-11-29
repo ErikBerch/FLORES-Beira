@@ -1,0 +1,6 @@
+﻿Name;Type;Sequence;Basin codes;Width unit;Heigh unit;Depth unit;Length unit;Number of flood defenses;FD1 Name;FD1 Type;FD1 Width;FD1 Height;FD1 Depth;FD1 Basin codes;FD1 Basin widths;FD1 Slope;FD1 Irribaren;FD1 Chezy;FD1 Incoming basin;FD2 Name;FD2 Type;FD2 Width;FD2 Height;FD2 Depth;FD2 Basin codes;FD2 Basin widths;FD2 Slope;FD2 Irribaren;FD2 Chezy;FD2 Incoming basin
+Unprotected;Unprotected area;0;12;m;m+MSL;m;m;;;;;;;;;;;;;;;;;;;;;;;
+Coast;Line of Defense;1;;m;m+MSL;m;m;2;East;Land;9500;8.5;;"4;6;14";"140;250;300";;;;0;West;Land;4800;8;;"13;10";"500;800";;;;0
+South Beira;Protected area;2;"11;10;13;14;8;7;6;4;1";m;m+MSL;m;m;;;;;;;;;;;;;;;;;;;;;;;
+Inland;Line of Defense;3;;m;m+MSL;m;m;1;Inland road;Land;5500;7.5;;"5;9;10";"250;130;170";;;;8;;;;;;;;;;;
+North Beira;Protected area;4;"9;5;3;2";m;m+MSL;m;m;;;;;;;;;;;;;;;;;;;;;;;

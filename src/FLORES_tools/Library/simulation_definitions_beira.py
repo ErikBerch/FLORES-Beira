@@ -17,15 +17,15 @@ Hydraulic Boundary Conditions
     Rain
 
 """
-from .simulation_calculations_beira import calculations_storm_surge_module, calculate_max_series, \
-                                              create_surge_series, calculate_overtopping, \
-                                              calculate_cost_construction_repair, calculate_failure_probability, \
-                                              calculate_interpolate, calculations_rain_module
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as ss
 from scipy import interpolate
 
+from .simulation_calculations_beira import calculations_storm_surge_module, calculate_max_series, \
+    create_surge_series, calculate_overtopping, \
+    calculate_cost_construction_repair, calculate_failure_probability, \
+    calculate_interpolate, calculations_rain_module
 
 
 class RegionLayout(object):
@@ -79,10 +79,7 @@ class RegionLayout(object):
         plt.suptitle('Inundation levels for all scenarios in 4 basins')
 
     def show_results(self, basin1, basin2, basin3, basin4, basin5, basin6, basin7, basin8, basin9, strategy,
-                     return_period_storm, return_period_rain, struc_measure_east, struc_measure_west,
-                     struc_measure_inland, drainage_measure_1, drainage_measure_2, retention_measure_1, retention_measure_2,
-                     emergency_measure_1, emergency_measure_2, h_struc_measure_east, h_struc_measure_west,
-                     h_struc_measure_inland):
+                     return_period_storm, return_period_rain):
 
         fig = plt.figure(figsize=(20, 20))
         ax1 = fig.add_subplot(331)
@@ -127,11 +124,7 @@ class RegionLayout(object):
             ax9.plot(x, y[basin9][scenario])
 
         plt.suptitle('Main results Beira simulation\n'
-                     'Return period storm: {} year, rain {} year\n'
-                     'Structural measures: East: {} ({} m height), West: {} ({} m height), Inland: {} ({} m high)\n'
-                     'Drainage measure: {}'.format(return_period_storm, return_period_rain, struc_measure_east,
-                                                   h_struc_measure_east, struc_measure_west, h_struc_measure_west,
-                                                   struc_measure_inland, h_struc_measure_inland, drainage_measure_1))
+                     'Return period storm: {} year, rain {} year'.format(return_period_storm, return_period_rain))
 
         plt.show()
 
@@ -169,17 +162,17 @@ class FRRStrategy(object):
                 print('wrong input, use "none" instead of None', measure)
             if self.AllMeasures[measure].Type == 'Structural':
                 if self.AllMeasures[measure].Layer == 'Coast' and self.AllMeasures[measure].Location == 'East':
-                    self.AllMeasures[measure].Height = float(structural_measures_height[measure])
+                    self.AllMeasures[measure].Height = float(structural_measures_height['East'])
                     self.AllMeasures[measure].HeightFail = self.AllMeasures[measure].get_height_fail()
                     [self.AllMeasures[measure].ConstructionCost, self.AllMeasures[measure].RepairCost] = \
                      self.AllMeasures[measure].get_cost_construction_repair(layers[1].FDLocations['East'])
                 elif self.AllMeasures[measure].Layer == 'Coast' and self.AllMeasures[measure].Location == 'West':
-                    self.AllMeasures[measure].Height = float(structural_measures_height[measure])
+                    self.AllMeasures[measure].Height = float(structural_measures_height['West'])
                     self.AllMeasures[measure].HeightFail = self.AllMeasures[measure].get_height_fail()
                     [self.AllMeasures[measure].ConstructionCost, self.AllMeasures[measure].RepairCost] = \
                      self.AllMeasures[measure].get_cost_construction_repair(layers[1].FDLocations['West'])
                 elif self.AllMeasures[measure].Layer == 'Inland':
-                    self.AllMeasures[measure].Height = float(structural_measures_height[measure])
+                    self.AllMeasures[measure].Height = float(structural_measures_height['Inland road'])
                     self.AllMeasures[measure].HeightFail = self.AllMeasures[measure].get_height_fail()
                     [self.AllMeasures[measure].ConstructionCost, self.AllMeasures[measure].RepairCost] = \
                      self.AllMeasures[measure].get_cost_construction_repair(layers[3].FDLocations['Inland road'])
@@ -487,12 +480,12 @@ class Basin(object):
 
 class Contour(object):
 
-    def __init__(self, code, min_height, surface_area, landuse_dict, landuse_value_dict, population):
+    def __init__(self, code, min_height, surface_area, landuse_value_dict, population):
 
         self.Code = code
         self.MinHeight = min_height
         self.SurfaceArea = surface_area
-        self.LandUseAreaDict = landuse_dict
+        #self.LandUseAreaDict = landuse_dict
         self.LandUseValueDict = landuse_value_dict
         self.Population = population
 
@@ -506,8 +499,8 @@ class Contour(object):
 
         inundation_index = int(round(water_level * 10))   # round to closest 0.10, get index
         contour_damage = 0
-        for landuse in self.LandUseAreaDict:
-            if self.LandUseAreaDict[landuse] != 0:
+        for landuse in self.LandUseValueDict:
+            if self.LandUseValueDict[landuse] != 0:
                 if inundation_index >= len(damagecurves.DevPatternFactors[landuse]):
                     portion_damage = 1
                 else:
@@ -947,8 +940,7 @@ class Impact(object):
             self.TotalExpectedDamage += self.ExpectedBasinDamages[basin]
             self.TotalExpectedExposedPop += self.ExpectedBasinExposedPop[basin]
 
-    def show_results(self, region_layout, inflow_rain,inflow_storm, outflow_drain, outflow_infiltration, total_volume_in_system, total_in, total_end, return_period_storm, return_period_rain, struc_measure_east, struc_measure_west, struc_measure_inland,
-                           drainage_measure_1, drainage_measure_2, retention_measure_1, retention_measure_2, emergency_measure_1, emergency_measure_2, h_struc_measure_east, h_struc_measure_west, h_struc_measure_inland):
+    def show_results(self, region_layout, inflow_rain,inflow_storm, outflow_drain, outflow_infiltration, volume_retention, total_volume_in_system, total_in, total_end, return_period_storm, return_period_rain):
 
         fig = plt.figure(figsize=(20, 20))
         ax1 = fig.add_subplot(121)
@@ -966,6 +958,7 @@ class Impact(object):
                            ['Outflow drain [m^3]', round(outflow_drain['1.1']), round(outflow_drain['4.2'])],
                            ['Outflow infiltration [m^3]', round(outflow_infiltration['1.1']),
                             round(outflow_infiltration['4.2'])],
+                           ['Volume in retention [m^3]', round(volume_retention['1.1']), round(volume_retention['4.2'])],
                            ['Volume in system [m^3]', round(total_volume_in_system['1.1']),
                             round(total_volume_in_system['4.2'])],
                            ['Total in [m^3]', round(total_in['1.1']), round(total_in['4.2'])],
@@ -991,12 +984,7 @@ class Impact(object):
         the_right_table.scale(1, 2.3)
 
         plt.suptitle('Main results Beira simulation\n'
-                     'Return period storm: {} year, rain {} year\n'
-                     'Structural measures: East: {} ({} m height), West: {} ({} m height), Inland: {} ({} m high)\n'
-                     'Drainage measure: {}'.format(return_period_storm, return_period_rain, struc_measure_east,
-                                                   h_struc_measure_east, struc_measure_west, h_struc_measure_west,
-                                                   struc_measure_inland, h_struc_measure_inland, drainage_measure_1))
-
+                     'Return period storm: {} year, rain {} year'.format(return_period_storm, return_period_rain))
         plt.show()
 
 

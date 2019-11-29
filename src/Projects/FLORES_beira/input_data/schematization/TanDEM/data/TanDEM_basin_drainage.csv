@@ -1,0 +1,16 @@
+Basin_ID;Drainage channel;channel size;other drainage ;Drains to basin;Retention;;retention top;voorstel;;;Lowest point;;elev_drain_to;;To_basin_diff;Outlet_elevation
+0;no;;low;0;99999999;;;;;;;;;;;
+1;yes;large;;sea;15695;;1.75;;;;1.75;;sea;;sea;3.5
+2;no;;low;3;359067;;3;;;;4.25;;4;;0.25;
+3;yes;mid;;sea;288150;;3;;;;4;;sea;;sea;6.25
+4;yes;mid;;sea;84405;;3;;;;3.25;;sea;;sea;4
+5;no;;low;10;17587;;3;;;;3.75;;3.75;;0;
+6;yes;mid;;14;794284;;3;;;;3;;3.5;;-0.5;
+7;no;;low;8;64915;;3;;;;3.75;;3.5;;0.25;
+8;no;;low;13;0;;3;;;;3.5;;3.75;;-0.25;
+9;yes;small;;8;28018;;3;;;;4;;3.5;;0.5;
+10;yes;mid;;13;0;;3;;;;3.75;;3.75;;0;
+11;yes;mid;;sea;92548;;3;;;;5;;sea;;sea;5
+12;yes;large;;sea;0;;3;;;;1.25;;sea;;sea;1.25
+13;yes;large;;sea;0;;3;;;;3.75;;sea;;sea;5.75
+14;yes;large;;sea;1500000;;3;;;;3.5;;sea;;sea;3.5
